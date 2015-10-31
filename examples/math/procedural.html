@@ -21,36 +21,36 @@
     three.renderer.setClearColor(new THREE.Color(0x204060), 1.0);
 
     time = 0
-    three.on('update', function () {
-      clock = three.Time.clock
-      time = clock / 4
+    // three.on('update', function () {
+    //   clock = three.Time.clock
+    //   time = clock / 4
 
-      t = Math.max(clock - 1, 0) / 12
-      t = t < .5 ? t * t : t - .25
+    //   t = Math.max(clock - 1, 0) / 12
+    //   t = t < .5 ? t * t : t - .25
 
-      o = .5 - .5 * Math.cos(Math.min(1, t) * π)
+    //   o = .5 - .5 * Math.cos(Math.min(1, t) * π)
 
-      c = Math.cos(t);
-      s = Math.sin(t);
-      view.set('quaternion', [0, -s, 0, c]);
-      surface.set('opacity', 1 - o * .25);
+    //   c = Math.cos(t);
+    //   s = Math.sin(t);
+    //   view.set('quaternion', [0, -s, 0, c]);
+    //   surface.set('opacity', 1 - o * .25);
 
-      f = 1 + o;
-      view.set('range', [[-3 * f, 3 * f], [0, 6], [-3 * f, 3 * f]]);
-      view.set('scale', [2*f, 2, 2*f]);
-    });
+    //   f = 1 + o;
+    //   view.set('range', [[-3 * f, 3 * f], [0, 6], [-3 * f, 3 * f]]);
+    //   view.set('scale', [2*f, 2, 2*f]);
+    // });
 
     view = mathbox
       .unit({
         scale: 720,
       })
       .cartesian({
-        range: [[-3, 3], [0, 6], [-3, 3]],
+        range: [[1, 8], [0, 8*8], [1, 8]],
         scale: [2, 2, 2],
       });
 
     view.grid({
-      width: 5,
+      width: 10,
       opacity: 0.5,
       axes: [1, 3],
     });
@@ -77,11 +77,12 @@
 
     view.area({
       id: 'sampler',
-      width: 83,
-      height: 83,
+      width: 8,
+      height: 8,
       axes: [1, 3],
       expr: function (emit, x, y, i, j) {
-        emit(x, 3 * (.5 + .5 * (Math.sin(x + time) * Math.sin(y + time))), y);
+        emit(x, x*y, y);
+        // emit(x, 3 * (.5 + .5 * (Math.sin(x + time) * Math.sin(y + time))), y);
       },
       channels: 3,
     });
@@ -89,8 +90,9 @@
       lineX: true,
       lineY: true,
       shaded: true,
-      color: 0x5090FF,
-      width: 5,
+      // color: 0x5090FF,
+      colors: '#sampler',
+      width: 8,
     });
 
     surface = mathbox.select('surface')

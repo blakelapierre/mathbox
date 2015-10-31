@@ -2,12 +2,13 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>MathBox - Vector</title>
-  <script src="../../build/mathbox-bundle.js"></script>
-  <link rel="stylesheet" href="../../build/mathbox.css">
+  <title>Push a button to roll simulated dice</title>
+  <script src="https://rawgit.com/unconed/mathbox/master/build/mathbox-bundle.min.js"></script>
+  <link rel="stylesheet" href="https://rawgit.com/unconed/mathbox/master/build/mathbox.css">
   <meta name="viewport" content="initial-scale=1, maximum-scale=1">
 </head>
 <body>
+  <button onclick="roll()">Roll</button>
   <script>
     mathbox = mathBox({
       plugins: ['core', 'controls', 'cursor'],
@@ -15,37 +16,131 @@
         klass: THREE.OrbitControls
       },
       camera: {
-        fov: 30,
+        fov: 30
       },
     });
     three = mathbox.three;
 
     three.camera.position.set(0, 0, 6);
-    three.renderer.setClearColor(new THREE.Color(0xFFFFFF), 1.0);
+    three.renderer.setClearColor(new THREE.Color(0x000000), 1.0);
 
     view = mathbox.set('focus', 6).cartesian({
       range: [[-2, 2], [-1, 1], [-1, 1]],
       scale: [2, 1, 1],
     });
 
+    var dice = [{
+      rolls: 0,
+      total: [0,0,0,0,0,0],
+      color: 0x3090FF // The colors really shouldn't be in this data structure, but it's the easiest way to do things due to the structure of the code below
+    },{
+      rolls: 0,
+      total: [0,0,0,0,0,0],
+      color: 0xFF9030
+    }];
+
+    var sum = [0,0,0,0,0,0,0,0,0,0,0,0];
+
+    view.axis({
+      axis: 1,
+      end: true,
+      width: 3,
+      depth: 1,
+      color: 0x00ffff,
+      opacity: .5,
+      zBias: 0,
+    });
+
+    view.array({
+      length: 100,
+      data: data,
+      items: 2,
+      channels: 2,
+    });
+    view.repeat({
+      height: 2 // width of bar
+    });
+    view.spread({
+      unit: 'absolute',
+      height: [1/data.length, 0, 0],
+    });
+    view.join({
+      order: 'wy',
+    });
+    view.strip({
+      color: 0xc05020,
+      shaded: false,
+    });
+
+    var id = 0;
+    dice.forEach(function(die) {
+      var total = die.total,
+          color = die.color;
+
+      view.interval({
+        id: 'sampler' + id,
+        length: 6,
+        history: 100,
+        expr: function (emit, x, i, t) {
+          y = total[i] * 0.01;
+
+          emit(x, y);
+          emit(x, 0);
+        },
+        items: 2,
+        channels: 2
+      });
+
+      view.vector({
+        points: '#sampler' + (id),
+        color: color,
+        opacity: 0.25,
+        width: 40,
+        start: false,
+      });
+
+      id++;
+    });
+
     view.interval({
-      id: 'sampler',
-      length: 64,
+      id: 'sampler' + id,
+      length: 12,
       expr: function (emit, x, i, t) {
-        y = Math.sin(x + t) + (i%2)*Math.sin(x * 400000 + t * 5 + x * x * 10000)*.05;
+        y = sum[i] * 0.01; // Just scaling the value so that it fits on the screen better. Is there a better way to do this?
+
         emit(x, y);
-        emit(x, -y);
+        emit(x, 0);
       },
       items: 2,
       channels: 2,
     });
 
     view.vector({
-      points: '#sampler',
-      color: 0x3090FF,
-      width: 4,
-      start: true,
+      points: '#sampler' + (id),
+      color: 0x30FF90,
+      opacity: 0.25,
+      width: 40,
+      start: false
     });
+
+    // This can be turned into all manner of slick functional-or-other paradigm code.
+    // For now it's simple imperative code.
+    var sides = 6;
+    function roll() {
+      var die0 = dice[0],
+          die1 = dice[1];
+
+      var roll1 = Math.floor(Math.random() * (sides + 1)),
+          roll2 = Math.floor(Math.random() * (sides + 1));
+
+      die0.rolls++;
+      die1.rolls++;
+
+      die0.total[roll1]++;
+      die1.total[roll2]++;
+
+      sum[roll1 + roll2]++;
+    }
 
   </script>
 </body>
