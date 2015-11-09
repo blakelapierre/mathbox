@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>MathBox - Point Cloud</title>
+  <script src="../../build/mathbox-bundle.js"></script>
+  <link rel="stylesheet" href="../../build/mathbox.css">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+</head>
+<body>
+  <script>
+    var mathbox = mathBox({
+      plugins: ['core', 'controls', 'cursor', 'stats'],
+      controls: {
+        klass: THREE.OrbitControls
+      },
+    });
+    var three = mathbox.three;
+
+    three.camera.position.set(0, 0, 1);
+    three.renderer.setClearColor(new THREE.Color(0x000000), 1.0);
+
+    // Tweak this to explore
+    var resolution = {x: 4096, y: 2048},
+        x_min = 1,
+        y_min = 1,
+        x_max = x_min + resolution.x - 1,
+        y_max = y_min + resolution.y - 1,
+        width = x_max - x_min,
+        height = y_max - y_min;
+
+    var view = mathbox.polar({
+      range: [[x_min, x_max], [y_min, y_max], [-1, 1]],
+      scale: [16 / 9, 1, 1],
+      bend: 1,
+      helix: .1
+    });
+
+    view
+      .area({
+        width: resolution.x,
+        height: resolution.y,
+        axes: [1, 2],
+        channels: 2,
+        expr: divisors,
+      })
+      .point({
+        color: [68/255, 174/255, 218/255],
+        size: 1,
+        blending: 'add',
+        shape: 'square',
+        opacity: 0.8,
+        zWrite: false,
+        zTest: false,
+      });
+
+      function divisors(emit, x, y, i, j, t) {
+        if (x > 0 && y > 0 && x % y === 0) emit(x, y);
+      }
+
+  </script>
+</body>
+</html>
