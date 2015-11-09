@@ -17,11 +17,11 @@
     });
     var three = mathbox.three;
 
-    three.camera.position.set(0, 0, 1);
+    three.camera.position.set(0, 0, 3);
     three.renderer.setClearColor(new THREE.Color(0x000000), 1.0);
 
     // Tweak this to explore
-    var resolution = {x: 4096, y: 2048},
+    var resolution = {x: 1024, y: 1024},
         x_min = 1,
         y_min = 1,
         x_max = x_min + resolution.x - 1,
@@ -32,8 +32,7 @@
     var view = mathbox.polar({
       range: [[x_min, x_max], [y_min, y_max], [-1, 1]],
       scale: [16 / 9, 1, 1],
-      bend: 1,
-      helix: .1
+      position: [1.5, 0, 0]
     });
 
     view
