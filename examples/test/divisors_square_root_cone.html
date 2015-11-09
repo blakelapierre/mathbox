@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>MathBox - Point Cloud</title>
+  <script src="../../build/mathbox-bundle.js"></script>
+  <link rel="stylesheet" href="../../build/mathbox.css">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+</head>
+<body>
+  <script>
+    var mathbox = mathBox({
+      plugins: ['core', 'controls', 'cursor', 'stats'],
+      controls: {
+        klass: THREE.OrbitControls
+      },
+    });
+    var three = mathbox.three;
+
+    three.camera.position.set(0, 0, 1);
+    three.renderer.setClearColor(new THREE.Color(0x000000), 1.0);
+
+    // Tweak this to explore
+    var e = 14;
+    var resolution = {x: Math.pow(2, e), y: Math.round(Math.sqrt(Math.pow(2, e)))},
+        x_min = 1,
+        y_min = 1,
+        x_max = x_min + resolution.x - 1,
+        y_max = y_min + resolution.y - 1,
+        width = x_max - x_min,
+        height = y_max - y_min;
+
+    var view = mathbox.polar({
+      range: [[x_min, x_max], [y_min, y_max], [y_min, Math.sqrt(y_max)]],
+      // range: [[x_min, x_max], [y_min, y_max]],
+      scale: [16 / 9 * 2, 1, 1],
+      position: [3.5, 0, 0]
+    });
+
+    view
+      .area({
+        width: resolution.x,
+        height: resolution.y,
+        axes: [1, 2],
+        channels: 3,
+        expr: divisors,
+      })
+      .point({
+        color: [68/255, 174/255, 218/255],
+        size: 1,
+        blending: 'add',
+        shape: 'square',
+        opacity: 0.8,
+        zWrite: false,
+        zTest: false,
+      });
+
+      // view.play({
+      //   target: 'matrix',
+      //   delay: 2,
+      //   pace: 2,
+      //   loop: true,
+      //   script: [
+      //     {props: {width: 2, height: 2}},
+      //     {props: {width: resolution.x, height: resolution.y}}
+      //   ]
+      // });
+
+      // view.play({
+      //   target: 'polar',
+      //   delay: 2,
+      //   pace: 2,
+      //   loop: true,
+      //   script: [
+      //     {props: {range:[[1, 2], [1, 2], [y_min, Math.log1p(y_max)]]}},
+      //     {props: {range:[[1, x_max], [1, y_max], [y_min, Math.log1p(y_max)]]}}
+      //   ]
+      // });
+
+      function divisors(emit, x, y, i, j, t) {
+        // if (x > 0 && y > 0 && x % y === 0) emit(x, y, Math.log1p(y));
+        if (x > 0 && y > 0 && x % y === 0) emit(x, y, Math.sqrt(y));
+        // if (x > 0 && y > 0 && x % y === 0) emit(x, y);
+      }
+
+  </script>
+</body>
+</html>
